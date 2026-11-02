@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<!--
+  templates/login.html
+  A Thymeleaf "natural template": it works in two ways.
+    - Served by Spring Boot: th:href / th:src are used, so paths like /css/auth.css are correct.
+    - Opened directly from disk (double-click, to preview the design): the plain href / src
+      (../static/...) are used instead.
+  The backend (P1) still needs a controller that maps GET /login to this template.
+-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Log in | Expense Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700;800&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../static/css/auth.css" th:href="@{/css/auth.css}">
+</head>
+<body>
+  <canvas class="backdrop" id="backdrop" aria-hidden="true"></canvas>
+
+  <main class="card">
+    <div class="art">
+      <canvas id="painting" role="img" aria-label="A painted landscape of hills under the sky, made of tiny dots"></canvas>
+      <figure class="quote">
+        <p>&ldquo;Beware of little expenses; a small leak will sink a great ship.&rdquo;</p>
+        <span>Benjamin Franklin</span>
+      </figure>
+    </div>
+
+    <section class="form-side">
+      <div class="brand"><span class="coin" aria-hidden="true">₹</span>Expense Tracker</div>
+
+      <p class="greet" id="greeting">Welcome back.</p>
+      <h1>Know where every rupee goes.</h1>
+      <p class="lead">Log in to see what you have spent, how your budgets are doing and what is left this month.</p>
+
+      <div id="message" class="message" role="alert" hidden></div>
+
+      <form id="login-form" novalidate>
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required aria-describedby="email-error">
+          <p class="field-error" id="email-error" hidden></p>
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <div class="password-wrap">
+            <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Your password" required aria-describedby="password-error">
+            <button type="button" class="toggle" data-toggle-password="password" aria-label="Show password" aria-pressed="false">Show</button>
+          </div>
+          <p class="field-error" id="password-error" hidden></p>
+        </div>
+        <button type="submit" class="submit" id="submit">Log in</button>
+      </form>
+
+      <p class="switch">Don't have an account? <a href="register.html" th:href="@{/register}">Sign up</a></p>
+    </section>
+  </main>
+
+  <!-- Order matters: api.js first, then the shared UI helpers, then this page's script. -->
+  <script src="../static/js/api.js" th:src="@{/js/api.js}" defer></script>
+  <script src="../static/js/auth-ui.js" th:src="@{/js/auth-ui.js}" defer></script>
+  <script src="../static/js/login.js" th:src="@{/js/login.js}" defer></script>
+</body>
+</html>
