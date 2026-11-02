@@ -1,0 +1,14 @@
+# Local development: your own MySQL, emails off.
+spring:
+  jpa:
+    show-sql: true
+  thymeleaf:
+    cache: false
+
+jwt:
+  # DEV ONLY placeholder, not a real secret. Prod must use the JWT_SECRET environment variable.
+  secret: ${JWT_SECRET:dev-only-secret-change-me-at-least-32-characters-long}
+
+app:
+  mail:
+    enabled: false
