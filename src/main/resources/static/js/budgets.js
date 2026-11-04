@@ -345,7 +345,8 @@
 
   $("bd-cancel").addEventListener("click", function () { dlg.close(); });
   $("qa-add").addEventListener("click", openAdd);
-  $("qa-alerts").addEventListener("click", function () {
+    $("qa-alerts").addEventListener("click", function (event) {
+    event.stopPropagation();                 // stops the "click outside" check from closing the bell right away
     window.scrollTo({ top: 0, behavior: "smooth" });
     const bell = $("bell");
     if (bell) bell.click();
