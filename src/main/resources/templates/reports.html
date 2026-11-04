@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Reports')}"></head>
+<body>
+<link rel="stylesheet" th:href="@{/css/reports.css}">
+<div class="shell">
+
+  <aside th:replace="~{fragments/layout :: sidebar('reports')}"></aside>
+
+  <div class="content">
+
+    <section class="hero">
+      <p class="greet">Expense Tracker</p>
+      <header th:replace="~{fragments/layout :: topbar('Reports', 'Get insights into your spending habits and financial progress.')}"></header>
+    </section>
+
+    <main class="page" id="main">
+
+      <!-- Period tabs + export menu -->
+      <section class="rep-bar" aria-label="Report period">
+        <div class="tabs" role="group" aria-label="Period">
+          <button type="button" class="tab" data-months="1" aria-pressed="true">This Month</button>
+          <button type="button" class="tab" data-months="3" aria-pressed="false">Last 3 Months</button>
+          <button type="button" class="tab" data-months="6" aria-pressed="false">Last 6 Months</button>
+          <button type="button" class="tab" data-months="12" aria-pressed="false">Last 12 Months</button>
+        </div>
+
+        <details class="menu" id="export-menu">
+          <summary class="btn ghost">
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>
+            Export Report
+          </summary>
+          <div class="menu-list" role="menu">
+            <p class="menu-note" id="export-note"></p>
+            <button type="button" role="menuitem" data-fmt="pdf">PDF</button>
+            <button type="button" role="menuitem" data-fmt="xlsx">Excel</button>
+            <button type="button" role="menuitem" data-fmt="csv">CSV</button>
+          </div>
+        </details>
+      </section>
+
+      <!-- Summary cards for the chosen period -->
+      <section class="cards" aria-label="Summary">
+        <article class="stat s-green">
+          <div class="stat-head">
+            <span class="chip chip-green"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></span>
+            <span class="lbl">Total Income</span>
+          </div>
+          <p class="val" id="r-income">–</p>
+          <p class="note" id="r-income-note"></p>
+        </article>
+        <article class="stat s-peach">
+          <div class="stat-head">
+            <span class="chip chip-amber"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg></span>
+            <span class="lbl">Total Expenses</span>
+          </div>
+          <p class="val" id="r-expense">–</p>
+          <p class="note" id="r-expense-note"></p>
+        </article>
+        <article class="stat s-blue">
+          <div class="stat-head">
+            <span class="chip chip-navy"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M16 12h2M3 10h18"/></svg></span>
+            <span class="lbl">Net Balance</span>
+          </div>
+          <p class="val" id="r-balance">–</p>
+          <p class="note" id="r-balance-note"></p>
+        </article>
+        <article class="stat s-lavender">
+          <div class="stat-head">
+            <span class="chip chip-violet"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6.4 6.4"/></svg></span>
+            <span class="lbl">Savings Rate</span>
+          </div>
+          <p class="val" id="r-rate">–</p>
+          <p class="note" id="r-rate-note"></p>
+        </article>
+      </section>
+
+      <!-- Trend chart + category donut -->
+      <section class="rep-row">
+
+        <section class="panel" aria-labelledby="trend-title">
+          <div class="panel-head"><h2 id="trend-title">Income vs Expenses Trend</h2></div>
+          <div class="chart-box"><canvas id="r-trend" role="img" aria-label="Income and expenses by month"></canvas></div>
+        </section>
+
+        <section class="panel" aria-labelledby="cat-title">
+          <div class="panel-head"><h2 id="cat-title">Expenses by Category</h2></div>
+          <div class="cat-body">
+            <div class="donut-box">
+              <canvas id="r-donut" role="img" aria-label="Spending by category"></canvas>
+              <div class="donut-mid"><strong id="r-total">–</strong><span>Total Expenses</span></div>
+            </div>
+            <ul class="legend" id="r-legend"></ul>
+          </div>
+        </section>
+
+      </section>
+
+      <!-- Monthly summary table + quick actions -->
+      <section class="rep-row2">
+
+        <section class="panel sum-panel" aria-labelledby="sum-title">
+          <div class="panel-head"><h2 id="sum-title">Monthly Summary</h2></div>
+          <div class="table-wrap">
+            <table class="rep-table">
+              <thead>
+                <tr>
+                  <th scope="col">Month</th>
+                  <th scope="col" class="r">Income</th>
+                  <th scope="col" class="r">Expenses</th>
+                  <th scope="col" class="r">Balance</th>
+                  <th scope="col" class="r">Savings Rate</th>
+                </tr>
+              </thead>
+              <tbody id="r-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel" aria-labelledby="qa-head">
+          <div class="panel-head"><h2 id="qa-head">Quick Actions</h2></div>
+          <div class="qa-period">
+            <span>Report for</span>
+            <select id="r-sel-month" class="select" aria-label="Report month"></select>
+            <select id="r-sel-year" class="select" aria-label="Report year"></select>
+          </div>
+          <div class="qa-grid">
+            <button type="button" class="qa" id="qa-pdf">
+              <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>Download PDF
+            </button>
+            <button type="button" class="qa" id="qa-xlsx">
+              <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M10 4v16"/></svg>Download Excel
+            </button>
+            <a class="qa" th:href="@{/budgets}" href="#">
+              <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg>View Budgets
+            </a>
+            <button type="button" class="qa" id="qa-alerts">
+              <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8M10 20a2 2 0 0 0 4 0"/></svg>View Alerts
+            </button>
+          </div>
+        </section>
+
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+<script th:src="@{/js/reports.js}" defer></script>
+</body>
+</html>
