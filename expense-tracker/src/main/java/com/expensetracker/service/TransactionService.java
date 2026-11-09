@@ -34,6 +34,7 @@ import java.util.Set;
 public class TransactionService {
 
     static final int MAX_PAGE_SIZE = 100;
+    static final LocalDate MIN_DATE = LocalDate.of(2000, 1, 1);
     private static final Set<String> SORTABLE = Set.of("date", "amount", "createdAt", "type", "id");
 
     private final TransactionRepository transactionRepository;
@@ -65,6 +66,7 @@ public class TransactionService {
 
     @Transactional
     public TransactionResponse create(TransactionRequest request) {
+        validateDate(request.date());
         User user = currentUser.get();
         Category category = resolveCategory(request.categoryId(), request.type(), user.getId());
 
@@ -83,6 +85,7 @@ public class TransactionService {
 
     @Transactional
     public TransactionResponse update(Long id, TransactionRequest request) {
+        validateDate(request.date());
         Long userId = currentUser.id();
         Transaction transaction = findOwned(id, userId);
         Category category = resolveCategory(request.categoryId(), request.type(), userId);
@@ -139,6 +142,13 @@ public class TransactionService {
         }
         return PageRequest.of(pageable.getPageNumber(),
                 Math.min(pageable.getPageSize(), MAX_PAGE_SIZE), sort);
+    }
+
+    /** Rejects absurd dates (year 1 or 9999) before they reach the database. Future bills up to a year ahead are fine. */
+    private static void validateDate(LocalDate date) {
+        if (date.isBefore(MIN_DATE) || date.isAfter(LocalDate.now().plusYears(1))) {
+            throw new BadRequestException("Date must be between 2000-01-01 and one year from today");
+        }
     }
 
     private static BigDecimal scale(BigDecimal amount) {

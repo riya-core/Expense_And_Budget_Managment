@@ -2,6 +2,7 @@ package com.expensetracker.config;
 
 import com.expensetracker.service.CustomUserDetailsService;
 import com.expensetracker.service.JwtService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,8 +16,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.time.Duration;
+
 /**
- * STEP 2: stateless JWT security (replaces the temporary permit-all config from Step 1).
+ * STEP 2 + 6: stateless JWT security with a login/register rate limit.
  * Public: /api/auth/**, page shells, static files, Swagger. Everything else needs a valid token.
  */
 @Configuration
@@ -27,6 +30,7 @@ public class SecurityConfig {
     private final JwtService jwtService;
     private final CustomUserDetailsService userDetailsService;
     private final RestAuthErrorHandler restAuthErrorHandler;
+    private final ObjectMapper objectMapper;
 
     @Bean
     PasswordEncoder passwordEncoder() {
@@ -53,6 +57,9 @@ public class SecurityConfig {
                     .requestMatchers("/css/**", "/js/**", "/images/**", "/favicon.ico", "/error").permitAll()
                     .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                     .anyRequest().authenticated())
+            // STEP 6: max 10 login/register attempts per minute per IP
+            .addFilterBefore(new RateLimitFilter(objectMapper, 10, Duration.ofMinutes(1)),
+                    UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(new JwtAuthFilter(jwtService, userDetailsService),
                     UsernamePasswordAuthenticationFilter.class);
         return http.build();
