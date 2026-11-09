@@ -1,0 +1,12 @@
+# Docker / production: everything comes from environment variables.
+spring:
+  jpa:
+    show-sql: false
+
+app:
+  mail:
+    enabled: ${MAIL_ENABLED:false}
+
+logging:
+  level:
+    root: INFO
