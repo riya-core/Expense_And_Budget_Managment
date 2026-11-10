@@ -325,7 +325,7 @@ Month and year default to the current month. `months` defaults to 6 (max 24).
 
 - Token is stored once, under a single `localStorage` key: **`et_token`** (user info under `et_user`).
 - All API calls go through one shared JS helper (`/js/api.js`) that adds `Authorization: Bearer <token>`, parses the error JSON, and redirects to `/login` on 401.
-- Chart data comes only from `/api/summary/*`. The frontend does no money math.
+- Chart data comes only from `/api/summary/*`. The frontend may add up and format numbers it already received (for example the total of several budgets, or a percentage shown as a label), but must never recompute backend-owned values (budget `status`, `percentUsed`).
 - Progress-bar colour comes from `BudgetResponse.status`.
 - Page routes (Thymeleaf): `/login`, `/register`, `/dashboard`, `/transactions`, `/budgets`, `/reports`. They render shells and load data by JS.
 
