@@ -1,0 +1,46 @@
+/* ===== Reports page (loaded by reports.html only) ===== */
+
+/* Period tabs + export menu */
+.rep-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+.tabs { display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 4px; background: #fff; border: 1px solid var(--line); border-radius: 14px; }
+.tab { height: 38px; padding: 0 16px; font: 600 0.9rem "Figtree", sans-serif; color: var(--muted); background: none; border: 0; border-radius: 10px; cursor: pointer; }
+.tab:hover { color: var(--ink); background: var(--field); }
+.tab[aria-pressed="true"] { color: #fff; background: var(--ink); }
+.tab:focus-visible, .qa:focus-visible, .menu-list button:focus-visible, .menu > summary:focus-visible { outline: 3px solid var(--violet); outline-offset: 2px; }
+
+.menu { position: relative; }
+.menu > summary { list-style: none; cursor: pointer; }
+.menu > summary::-webkit-details-marker { display: none; }
+.menu-list { position: absolute; right: 0; top: 48px; z-index: 25; display: grid; min-width: 190px; padding: 8px; background: #fff; border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 10px 30px rgba(11, 20, 66, 0.18); }
+.menu-note { margin: 0; padding: 6px 10px 8px; font-size: 0.78rem; color: var(--muted); }
+.menu-list button { padding: 10px 12px; font: 600 0.9rem "Figtree", sans-serif; color: var(--ink); text-align: left; background: none; border: 0; border-radius: 8px; cursor: pointer; }
+.menu-list button:hover { background: var(--field); }
+
+/* Rows */
+.rep-row { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 18px; margin-bottom: 18px; }
+.rep-row2 { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 18px; }
+.chart-box { position: relative; height: 260px; }
+
+/* Monthly summary table */
+.sum-panel { padding: 0; overflow: hidden; }
+.sum-panel .panel-head { margin: 0; padding: 18px 20px 12px; }
+.table-wrap { overflow-x: auto; }
+.rep-table { width: 100%; min-width: 480px; border-collapse: collapse; }
+.rep-table th { padding: 12px 18px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em; color: var(--muted); text-align: left; text-transform: uppercase; background: var(--sheet); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.rep-table td { padding: 14px 18px; font-size: 0.92rem; border-bottom: 1px solid var(--line); }
+.rep-table tbody tr:last-child td { border-bottom: 0; }
+.rep-table tbody tr:first-child { background: #eef0ff; }
+.rep-table th.r, .rep-table td.r { text-align: right; }
+
+/* Quick actions */
+.rep-row2 .panel:last-child { background: #f3f1ff; border-color: #e2defb; }
+.qa-period { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 14px; font-size: 0.88rem; color: var(--muted); }
+.qa-period .select { flex: 1 1 110px; }
+.qa-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; }
+.qa { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 84px; padding: 12px; font: 600 0.88rem "Figtree", sans-serif; color: var(--ink); text-decoration: none; background: #fff; border: 1px solid var(--line); border-radius: 14px; cursor: pointer; }
+.qa:hover { background: var(--field); }
+.qa .ico { width: 22px; height: 22px; color: var(--violet-dark); }
+
+@media (max-width: 1100px) {
+  .rep-row, .rep-row2 { grid-template-columns: minmax(0, 1fr); }
+}
