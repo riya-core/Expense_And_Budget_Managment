@@ -111,13 +111,54 @@
     }
     throw new ApiError((data && data.message) || fallbackMessage(response.status), response.status, data);
   }
+    /*
+   * download(path, fallbackName)  -  for file replies such as reports (contract 6.7).
+   * A plain <a href> cannot send the Bearer token, so we fetch the bytes with the
+   * header, then save them through a temporary link.
+   */
+  async function download(path, fallbackName) {
+    const headers = {};
+    const token = getToken();
+    if (token) headers.Authorization = "Bearer " + token;
 
+    let response;
+    try {
+      response = await fetch(path, { method: "GET", headers: headers });
+    } catch (networkError) {
+      throw new ApiError("We couldn't reach the server. Check your connection and try again.", 0, null);
+    }
+
+    if (!response.ok) {
+      const data = await readBody(response);
+      if (response.status === 401) {
+        clearSession();
+        if (window.location.pathname !== LOGIN_PATH) window.location.assign(LOGIN_PATH);
+      }
+      throw new ApiError((data && data.message) || fallbackMessage(response.status), response.status, data);
+    }
+
+    // Use the file name the server chose (Content-Disposition), or our fallback.
+    const disposition = response.headers.get("Content-Disposition") || "";
+    const match = /filename\*?=(?:UTF-8'')?"?([^";]+)"?/i.exec(disposition);
+    const filename = match ? decodeURIComponent(match[1]) : fallbackName;
+
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
   window.Api = {
     request: request,
     get: function (path, options) { return request("GET", path, options); },
     post: function (path, body, options) { return request("POST", path, Object.assign({}, options, { body: body })); },
     put: function (path, body, options) { return request("PUT", path, Object.assign({}, options, { body: body })); },
     del: function (path, options) { return request("DELETE", path, options); },
+    download: download,
     getToken: getToken,
     getUser: getUser,
     saveSession: saveSession,
