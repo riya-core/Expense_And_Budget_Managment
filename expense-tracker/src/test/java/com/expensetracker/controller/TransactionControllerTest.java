@@ -82,7 +82,7 @@ class TransactionControllerTest {
 
     @Test
     void listReturnsExactlyThePageShapeFromTheContract() throws Exception {
-        when(transactionService.list(any(), any(), any(), any(), any()))
+        when(transactionService.list(any(), any(), any(), any(), any(), any()))
                 .thenReturn(new PageResponse<>(List.of(sample()), 0, 10, 42, 5, true, false));
 
         mockMvc.perform(get("/api/transactions").header("Authorization", BEARER))
@@ -104,19 +104,19 @@ class TransactionControllerTest {
 
     @Test
     void listBindsEveryQueryParameter() throws Exception {
-        when(transactionService.list(any(), any(), any(), any(), any()))
+        when(transactionService.list(any(), any(), any(), any(), any(), any()))
                 .thenReturn(new PageResponse<>(List.of(), 1, 20, 0, 0, false, true));
 
         mockMvc.perform(get("/api/transactions")
                         .param("from", "2026-11-01").param("to", "2026-11-30")
-                        .param("categoryId", "5").param("type", "EXPENSE")
+                        .param("categoryId", "5").param("type", "EXPENSE").param("q", "lunch")
                         .param("page", "1").param("size", "20").param("sort", "amount,asc")
                         .header("Authorization", BEARER))
                 .andExpect(status().isOk());
 
         ArgumentCaptor<Pageable> pageable = ArgumentCaptor.forClass(Pageable.class);
         verify(transactionService).list(eq(LocalDate.of(2026, 11, 1)), eq(LocalDate.of(2026, 11, 30)),
-                eq(5L), eq(TransactionType.EXPENSE), pageable.capture());
+                eq(5L), eq(TransactionType.EXPENSE), eq("lunch"), pageable.capture());
         assertEquals(1, pageable.getValue().getPageNumber());
         assertEquals(20, pageable.getValue().getPageSize());
         assertEquals(Sort.Direction.ASC, pageable.getValue().getSort().getOrderFor("amount").getDirection());
@@ -124,16 +124,28 @@ class TransactionControllerTest {
 
     @Test
     void listDefaultsToTenPerPageNewestDateFirst() throws Exception {
-        when(transactionService.list(any(), any(), any(), any(), any()))
+        when(transactionService.list(any(), any(), any(), any(), any(), any()))
                 .thenReturn(new PageResponse<>(List.of(), 0, 10, 0, 0, true, true));
 
         mockMvc.perform(get("/api/transactions").header("Authorization", BEARER))
                 .andExpect(status().isOk());
 
         ArgumentCaptor<Pageable> pageable = ArgumentCaptor.forClass(Pageable.class);
-        verify(transactionService).list(any(), any(), any(), any(), pageable.capture());
+        verify(transactionService).list(any(), any(), any(), any(), any(), pageable.capture());
         assertEquals(10, pageable.getValue().getPageSize());
         assertEquals(Sort.Direction.DESC, pageable.getValue().getSort().getOrderFor("date").getDirection());
+    }
+
+    @Test
+    void searchTextIsPassedThroughUnchanged() throws Exception {
+        when(transactionService.list(any(), any(), any(), any(), any(), any()))
+                .thenReturn(new PageResponse<>(List.of(sample()), 0, 10, 1, 1, true, true));
+
+        mockMvc.perform(get("/api/transactions").param("q", "50% off").header("Authorization", BEARER))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content", hasSize(1)));
+
+        verify(transactionService).list(any(), any(), any(), any(), eq("50% off"), any());
     }
 
     @Test

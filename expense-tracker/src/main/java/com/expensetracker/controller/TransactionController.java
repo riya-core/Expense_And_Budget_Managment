@@ -41,10 +41,10 @@ public class TransactionController {
     private final TransactionService transactionService;
 
     @Operation(summary = "List transactions (filtered and paged)",
-            description = "Only the logged-in user's transactions. Every filter is optional. Default: 10 per page, "
+            description = "Only the logged-in user's transactions. Every filter is optional and they combine (q searches the description). Default: 10 per page, "
                     + "newest date first, page size capped at 100. Sortable fields: date, amount, createdAt, type, id.")
     @ApiResponse(responseCode = "200", description = "A page: content, number, size, totalElements, totalPages, first, last")
-    @ApiResponse(responseCode = "400", description = "Bad date, type or sort field, or 'from' is after 'to'")
+    @ApiResponse(responseCode = "400", description = "Bad date, type or sort field, 'from' is after 'to', or the search text is too long")
     @ApiResponse(responseCode = "401", description = "Missing, invalid or expired token")
     @GetMapping
     public PageResponse<TransactionResponse> list(
@@ -56,9 +56,12 @@ public class TransactionController {
             @RequestParam(required = false) Long categoryId,
             @Parameter(description = "Only INCOME or only EXPENSE")
             @RequestParam(required = false) TransactionType type,
+            @Parameter(description = "Search text: matches the description (contains, ignoring capitals), max 100 characters",
+                    example = "lunch")
+            @RequestParam(required = false) String q,
             @ParameterObject
             @PageableDefault(size = 10, sort = "date", direction = Sort.Direction.DESC) Pageable pageable) {
-        return transactionService.list(from, to, categoryId, type, pageable);
+        return transactionService.list(from, to, categoryId, type, q, pageable);
     }
 
     @Operation(summary = "Get one transaction")

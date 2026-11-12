@@ -190,7 +190,7 @@ class TransactionServiceTest {
     @Test
     void listRejectsFromAfterTo() {
         assertThrows(BadRequestException.class, () -> transactionService.list(
-                LocalDate.of(2026, 11, 1), LocalDate.of(2026, 10, 1), null, null, PageRequest.of(0, 10)));
+                LocalDate.of(2026, 11, 1), LocalDate.of(2026, 10, 1), null, null, null, PageRequest.of(0, 10)));
     }
 
     @Test
@@ -198,7 +198,7 @@ class TransactionServiceTest {
         when(currentUser.id()).thenReturn(UID);
 
         assertThrows(BadRequestException.class, () -> transactionService.list(
-                null, null, null, null, PageRequest.of(0, 10, Sort.by("password"))));
+                null, null, null, null, null, PageRequest.of(0, 10, Sort.by("password"))));
     }
 
     @Test
@@ -208,7 +208,7 @@ class TransactionServiceTest {
                 .thenReturn(new PageImpl<>(List.of(existing(5L)), PageRequest.of(0, 100), 1));
 
         PageResponse<TransactionResponse> response = transactionService.list(
-                null, null, null, null, PageRequest.of(0, 500, Sort.by(Sort.Direction.DESC, "date")));
+                null, null, null, null, null, PageRequest.of(0, 500, Sort.by(Sort.Direction.DESC, "date")));
 
         assertEquals(1, response.content().size());
         assertEquals(1L, response.totalElements());
