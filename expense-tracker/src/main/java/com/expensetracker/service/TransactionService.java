@@ -11,6 +11,7 @@ import com.expensetracker.exception.BadRequestException;
 import com.expensetracker.exception.ResourceNotFoundException;
 import com.expensetracker.repository.CategoryRepository;
 import com.expensetracker.repository.TransactionRepository;
+import com.expensetracker.repository.TransactionSearchSpecs;
 import com.expensetracker.repository.TransactionSpecs;
 import com.expensetracker.util.CurrentUser;
 import com.expensetracker.util.Mappers;
@@ -34,6 +35,7 @@ import java.util.Set;
 public class TransactionService {
 
     static final int MAX_PAGE_SIZE = 100;
+    static final int MAX_SEARCH_LENGTH = 100;
     static final LocalDate MIN_DATE = LocalDate.of(2000, 1, 1);
     private static final Set<String> SORTABLE = Set.of("date", "amount", "createdAt", "type", "id");
 
@@ -44,9 +46,13 @@ public class TransactionService {
 
     @Transactional(readOnly = true)
     public PageResponse<TransactionResponse> list(LocalDate from, LocalDate to, Long categoryId,
-                                                  TransactionType type, Pageable pageable) {
+                                                  TransactionType type, String q, Pageable pageable) {
         if (from != null && to != null && from.isAfter(to)) {
             throw new BadRequestException("'from' must not be after 'to'");
+        }
+        String search = (q == null || q.isBlank()) ? null : q.trim();
+        if (search != null && search.length() > MAX_SEARCH_LENGTH) {
+            throw new BadRequestException("Search text is too long (max " + MAX_SEARCH_LENGTH + " characters)");
         }
         Long userId = currentUser.id();
         Specification<Transaction> spec = Specification.where(TransactionSpecs.belongsTo(userId))
@@ -54,6 +60,7 @@ public class TransactionService {
                 .and(TransactionSpecs.to(to))
                 .and(TransactionSpecs.category(categoryId))
                 .and(TransactionSpecs.type(type))
+                .and(TransactionSearchSpecs.descriptionContains(search))
                 .and(TransactionSpecs.withCategory());
         Page<Transaction> page = transactionRepository.findAll(spec, safePageable(pageable));
         return PageResponse.of(page.map(Mappers::toResponse));
