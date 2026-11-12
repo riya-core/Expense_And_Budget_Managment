@@ -1,0 +1,18 @@
+# NOTE: P3 owns this file. Keep the keys identical to docs/TEAM_CONTRACT.md section 8.
+spring:
+  application:
+    name: expense-tracker
+  datasource:
+    url: "${DB_URL:jdbc:mysql://localhost:3306/expense_db?useSSL=false&allowPublicKeyRetrieval=true}"
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate        # Flyway is the only thing that changes the schema
+  flyway:
+    enabled: true
+
+jwt:
+  secret: ${JWT_SECRET:}        # never commit a real secret
+  expiration-ms: 3600000        # 1 hour (login response expiresIn = 3600)
